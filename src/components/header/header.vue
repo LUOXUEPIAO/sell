@@ -33,6 +33,7 @@
             <div class="detail-wrapper clearfix">
                 <div class="detail-main">
                    <h1 class="name">{{seller.name}}</h1>
+                   <star :size="48" :score="seller.score"></star>
                 </div>
         </div>
          <div class="detail-close">
@@ -42,6 +43,7 @@
     </div>
 </template>
 <script>
+import star from '../star/star'
 export default {
     props: {
         seller: Object
@@ -58,11 +60,15 @@ export default {
     },
     created () {
         this.classMap = ['decrease', 'discount', 'special', 'invoice', 'guarantee']
+    },
+    components: {
+        star
     }
 }
 </script>
 <style lang="stylus" scoped>
    @import "../../common/stylus/mixin"
+//    @import '../../common/stylus/star'
    .header
        color :#fff
        overflow :hidden
