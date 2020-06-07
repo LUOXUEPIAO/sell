@@ -33,10 +33,31 @@
             <div class="detail-wrapper clearfix">
                 <div class="detail-main">
                    <h1 class="name">{{seller.name}}</h1>
-                   <star :size="48" :score="seller.score"></star>
+                   <div class="star-wrapper">
+                  <star :size="48" :score="seller.score"></star>
+                   </div>
+                   <div class="title">
+                       <div class="line"></div>
+                       <div class="text">优惠信息</div>
+                       <div class="line"></div>
+                   </div>
+                   <ul v-if="seller.supports" class="supports_box">
+                       <li class="support-item" v-for="(item, index) in seller.supports" :key="index">
+                           <span class="icon" :class="classMap[seller.supports[index].type]"></span>
+                           <span class="text">{{seller.supports[index].description}}</span>
+                       </li>
+                   </ul>
+                    <div class="title">
+                       <div class="line"></div>
+                       <div class="text">商家公告</div>
+                       <div class="line"></div>
+                   </div>
+                   <div class="bulletin">
+                       <p class="content">{{seller.bulletin}}</p>
+                   </div>
                 </div>
         </div>
-         <div class="detail-close">
+         <div class="detail-close" @click="hideDetail">
                 <i class="icon-close"></i>
             </div>
     </div>
@@ -56,6 +77,9 @@ export default {
     methods: {
        showDetail () {
           this.detailShow = true
+       },
+       hideDetail () {
+           this.detailShow = false
        }
     },
     created () {
@@ -189,8 +213,9 @@ export default {
            z-index:100
            width:100%
            height:100%
-           overflow:hidden
+           overflow:auto
            background :rgba(7,17,27,0.8)
+           backdrop-filter :blur(10px)
         .detail-wrapper
             width :100%
             min-height :100%
@@ -202,6 +227,31 @@ export default {
                     text-align :center
                     font-size :16px
                     font-weight:700
+                .star-wrapper
+                    margin-top :18px
+                    padding:2px 0
+                    text-align :center
+                .title
+                    width :80%
+                    margin:28px auto 24px auto
+                    display:flex
+                    .line
+                        flex :1
+                        position :relative
+                        top:-6px
+                        border-bottom: 1px solid rgba(255,255,255,0.2)
+                    .text
+                        padding:0 12px
+                        font-weight:700
+                        font-size :14px
+                .bulletin
+                    width :80%
+                    margin :0 auto
+                    .content
+                        padding :0 12px
+                        line-height :24px
+                        font-size:12px
+
         .detail-close
             position :relative
             width:32px
@@ -210,4 +260,46 @@ export default {
             clear:both
             font-size:32px
 
+</style>
+<style scoped>
+.supports_box:last-child{
+    margin-bottom :0
+}
+.supports_box .support-item .decrease{
+     background-image :url(../../assets/img/decrease_2@2x.png)
+}
+.supports_box .support-item .discount{
+     background-image :url(../../assets/img/discount_2@2x.png)
+}
+.supports_box .support-item .guarantee{
+     background-image :url(../../assets/img/guarantee_2@2x.png)
+}
+.supports_box .support-item .invoice{
+     background-image :url(../../assets/img/invoice_2@2x.png)
+}
+.supports_box .support-item .special{
+     background-image :url(../../assets/img/special_2@2x.png)
+}
+.supports_box .support-item{
+               padding :0 12px;
+               margin-bottom :12px;
+               font-size :0;
+}
+.supports_box .support-item .icon{
+                                    display :inline-block;
+                                    width :15px;
+                                    height :16px;
+                                    vertical-align :top;
+                                    margin-right :6px;
+                                    background-size :16px 16px;
+                                    background-repeat :no-repeat;
+}
+.supports_box .support-item .text{
+                                line-height :16px;
+                                font-size:12px;
+}
+.supports_box {
+    width: 80%;
+    margin: 0 auto;
+}
 </style>
