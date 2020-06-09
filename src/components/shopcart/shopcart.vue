@@ -1,6 +1,6 @@
 <template>
     <div class="shopcart">
-        <div class="content">
+        <div class="content" @click="toggleList">
             <div class="content-left">
                 <div class="logo-wrapper">
                     <div class="logo" :class="{'highLight' : totalCount > 0}">
@@ -17,10 +17,31 @@
                 </div>
             </div>
         </div>
+        <transition name="fade">
+        <div class="shopcart-list" v-show="listShow">
+            <div class="list-header">
+                <h1 class="title">购物车</h1>
+                <span class="empty">清空</span>
+            </div>
+            <div class="list-content">
+                <ul>
+                    <li class="food" v-for="(food, index) in selectFoods" :key="index">
+                    <span class="name">{{food.name}}</span>
+                    <div class="price">
+                        <span>￥{{ food.price*food.count}}</span>
+                    </div>
+                    <div class="cartcontrol-wrapper">
+                        <cartcontrol :food = "food"></cartcontrol>
+                    </div>
+                     </li>
+                </ul>
+            </div>
+        </div>
+        </transition>
     </div>
 </template>
 <script>
-
+import cartcontrol from '../cartcontrol/cartcontrol'
 export default {
 props: {
     selectFoods: {
@@ -41,7 +62,23 @@ props: {
         default: 0
         }
         },
-        computed: {
+data () {
+    return {
+        fold: true
+            }
+        },
+methods: {
+          toggleList () {
+              if (!this.totalCount) {
+                  return
+              }
+              this.fold = !this.fold
+          }
+        },
+components: {
+          cartcontrol
+        },
+computed: {
             totalPrice () {
                 let total = 0
                 this.selectFoods.forEach((food) => {
@@ -72,11 +109,36 @@ props: {
                 } else {
                     return 'enough'
                 }
+            },
+
+            listShow: {
+                get: function () {
+                    return this.fold
+                },
+                set: function () {
+                    if (!this.totalCount) {
+                    this.fold = true
+                    return false
+                    }
+                    let show = !this.fold
+                    return show
+                }
+            }
+        },
+        watch: {
+             listShow () {
+                if (!this.totalCount) {
+                    this.fold = true
+                    return false
+                }
+                let show = !this.fold
+                return show
             }
         }
 }
 </script>
 <style lang="stylus" scoped>
+@import '../../common/stylus/mixin'
 .shopcart
   position :fixed
   left:0
@@ -167,4 +229,56 @@ props: {
               &.enough
                   background :#00b43c
                   color :#fff
+    .shopcart-list
+      position :absolute
+      top:0
+      left:0
+      z-index:-1
+      width:100%
+      transform translate3d(0, -100%, 0)
+      &.fade-enter-active, &.fade-leave-active
+        transition: all 0.5s linear
+        transform translate3d(0, -100%, 0)
+      &.fade-enter, &.fade-leave-active
+        transform translate3d(0, 0, 0)
+      .list-header
+        height :40px
+        line-height :40px
+        padding:0 18px
+        background:#f3f5f7
+        border-bottom :1px solid rgba(7, 17, 27, 0.1)
+        .title
+          float :left
+          font-size:14px
+          color:rgb(7,17,27)
+        .empty
+          float :right
+          font-size:14px
+          color:rgb(0,160,220)
+      .list-content
+          padding:0 18px
+          max-height :217px
+          overflow:hidden
+          background:#ffffff
+          .food
+            position :relative
+            padding:12px 0
+            box-sizing :border-box
+            border-1px(rgba(7,17,27,0.1))
+            .name
+              line-height :24px
+              font-size :14px
+              color :rgb(7,17,27)
+            .price
+                position :absolute
+                right: 90px
+                bottom :12px
+                line-height :24px
+                font-size :14px
+                font-weight :700
+                color :rgb(240, 20, 20)
+            .cartcontrol-wrapper
+                position :absolute
+                right :0
+                bottom :6px
 </style>
