@@ -1,4 +1,5 @@
 <template>
+<div>
     <div class="shopcart">
         <div class="content" @click="toggleList">
             <div class="content-left">
@@ -11,7 +12,7 @@
                 <div class="price" :class="{'highLight' : totalPrice > 0}">￥{{totalPrice}}</div>
                 <div class="desc">另需配送费￥{{deliveryPrice}}元</div>
             </div>
-            <div class="content-right">
+            <div class="content-right" @click.stop.prevent="pay">
                 <div class="pay" :class="payClass">
                     {{payDesc}}
                 </div>
@@ -21,9 +22,9 @@
         <div class="shopcart-list" v-show="listShow">
             <div class="list-header">
                 <h1 class="title">购物车</h1>
-                <span class="empty">清空</span>
+                <span class="empty" @click="empty">清空</span>
             </div>
-            <div class="list-content">
+            <div class="list-content" ref="listContent" >
                 <ul>
                     <li class="food" v-for="(food, index) in selectFoods" :key="index">
                     <span class="name">{{food.name}}</span>
@@ -39,8 +40,13 @@
         </div>
         </transition>
     </div>
+    <transition name="fade1">
+    <div class="list-mask" v-show="listShow" @click="hideList"></div>
+    </transition>
+</div>
 </template>
 <script>
+import BScroll from 'better-scroll'
 import cartcontrol from '../cartcontrol/cartcontrol'
 export default {
 props: {
@@ -64,7 +70,7 @@ props: {
         },
 data () {
     return {
-        fold: true
+        fold: false
             }
         },
 methods: {
@@ -73,7 +79,21 @@ methods: {
                   return
               }
               this.fold = !this.fold
-          }
+          },
+          empty () {
+              this.selectFoods.forEach((food) => {
+                  food.count = 0
+              })
+          },
+          hideList () {
+                this.fold = false // 点击mark层，购物车详情列表被收回
+            },
+        pay () {
+            if (this.totalPrice < this.minPrice) {
+                return
+            }
+            window.alert(`支付${this.totalPrice}元`)
+        }
         },
 components: {
           cartcontrol
@@ -110,7 +130,6 @@ computed: {
                     return 'enough'
                 }
             },
-
             listShow: {
                 get: function () {
                     return this.fold
@@ -121,20 +140,43 @@ computed: {
                     return false
                     }
                     let show = !this.fold
+                    if (show) {
+                        this.$nextTick(() => {
+                            if (!this.scroll) {
+                            this.scroll = new BScroll(this.$refs.listContent, {
+                                click: true
+                            })
+                            } else {
+                                this.scroll.refresh()
+                            }
+                        })
+                    }
                     return show
                 }
             }
-        },
-        watch: {
-             listShow () {
-                if (!this.totalCount) {
-                    this.fold = true
-                    return false
-                }
-                let show = !this.fold
-                return show
-            }
         }
+
+// watch: {
+//   listShow () {
+//                 if (!this.totalCount) {
+//                 this.fold = true
+//                 return false // 不做切换
+//                 }
+//                 let show = !this.fold
+//                 if (show) {
+//                     this.$nextTick(() => {
+//                          if (!this.scroll) {
+//                         this.scroll = new BScroll(this.$refs.listContent, {
+//                             click: true
+//                         })
+//                         } else {
+//                         this.scroll.refresh()
+//                         }
+//                     })
+//                 }
+//                 return show
+//   }
+// }
 }
 </script>
 <style lang="stylus" scoped>
@@ -281,4 +323,21 @@ computed: {
                 position :absolute
                 right :0
                 bottom :6px
+.list-mask
+  position :fixed
+  top:0
+  left:0
+  width:100%
+  height:100%
+  z-index:40
+  backdrop-filter:blur(10px)
+  background:rgba(7,17,27,0.6)
+  opacity:1
+  &.fade1-enter-active, &.fade1-leave-active
+    opacity: 1
+    transition: all 0.5s //设置缓动效果
+    background rgba(7, 17, 27, 0.6)
+  &.fade1-enter, &.fade1-leave-active
+    opacity :0
+    background :rgba(7,17,27,0)
 </style>
